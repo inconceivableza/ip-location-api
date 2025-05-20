@@ -29,7 +29,7 @@ func main() {
 	http.HandleFunc("GET /benchmark/{ipVersion}/{times}", getBenchmark)
 
 	fmt.Printf("starting server on %s:%s\n", os.Getenv("SERVER_HOST"), os.Getenv("SERVER_PORT"))
-	err = http.ListenAndServe(fmt.Sprintf("%s:%s", os.Getenv("SERVER_HOST"), os.Getenv("SERVER_PORT")), nil)
+	err = http.ListenAndServe(fmt.Sprintf("%s:%s", os.Getenv("SERVER_HOST"), os.Getenv("SERVER_PORT")), logRequest(http.DefaultServeMux))
 
 	if errors.Is(err, http.ErrServerClosed) {
 		fmt.Println("server closed")
@@ -37,6 +37,14 @@ func main() {
 		fmt.Printf("error starting server: %s\n", err)
 		os.Exit(1)
 	}
+}
+
+func logRequest(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		timeString := time.Now().Format(time.RFC3339)
+		fmt.Printf("%s %s %s %s\n", timeString, r.RemoteAddr, r.Method, r.URL)
+		handler.ServeHTTP(w, r)
+	})
 }
 
 func initialise() {
