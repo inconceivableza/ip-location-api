@@ -8,7 +8,7 @@ Database support has been added for [MMDB](https://support.maxmind.com/hc/en-us/
 
 ## API Usage
 
-The only important route is the IP lookup: `/ip/{ip}`, e.g. `/ip/40.45.124.54`:
+The main important route is the IP lookup: `/ip/{ip}`, e.g. `/ip/40.45.124.54`:
 
 ```json
 {
@@ -33,6 +33,9 @@ The only important route is the IP lookup: `/ip/{ip}`, e.g. `/ip/40.45.124.54`:
 ```
 
 This route accepts IPv4 and IPv6 strings in any format that [Go](https://pkg.go.dev/net#ParseIP) will support.
+
+The `/ipccdata.IpCcService/Lookup` POST route implements the service required by the [Bluesky bskyweb service](https://github.com/bluesky-social/social-app/blob/f3bc962494e55de8a4fa6805db73c081a07b47d4/bskyweb/cmd/bskyweb/server.go#L596).
+This requires a JSON body containing `{"ip": ip_v4_or_v6}` and returns `{"countryCode": country_code}` or `{"error": errorMessage}`.
 
 There are two more routes, but these **only run with an API key defined**:
 
