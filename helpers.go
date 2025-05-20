@@ -2,6 +2,7 @@ package main
 
 import (
 	"compress/gzip"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -137,10 +138,11 @@ func fetchIPCC(ipJson io.Reader) ([]byte, error) {
 	dec := json.NewDecoder(ipJson)
 	err := dec.Decode(&requestData)
 	if err == nil {
-		ipValue, ok := requestData["ip"];
+		ipBase64, ok := requestData["ip"];
 		if ok {
-			ipString, ok := ipValue.(string)
-			if ok {
+			ipBytes, err := base64.StdEncoding.DecodeString(ipBase64.(string))
+			if err == nil {
+				ipString := net.IP(ipBytes).String()
 				ipResult, err := fetchIP(ipString)
 				if err == nil {
 					if ipResult.FoundCountry {
