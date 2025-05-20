@@ -30,6 +30,24 @@ func getIp(response http.ResponseWriter, request *http.Request) {
 	response.Write(jsonBytes)
 }
 
+func getIpCC(response http.ResponseWriter, request *http.Request) {
+	if !validApiKey(request, false) {
+		response.Header().Set("Content-Type", "application/json")
+		response.Write([]byte(`{ "error": "Sorry, this API requires a key" }`))
+		return
+	}
+
+	jsonBytes, err := fetchIPCC(request.Body)
+	if err != nil {
+		response.WriteHeader(http.StatusInternalServerError)
+		response.Header().Set("Content-Type", "application/json")
+		response.Write(jsonBytes)
+		return
+	}
+	response.Header().Set("Content-Type", "application/json")
+	response.Write(jsonBytes)
+}
+
 func getRandomIp(response http.ResponseWriter, request *http.Request) {
 	if !validApiKey(request, true) {
 		response.Header().Set("Content-Type", "application/json")

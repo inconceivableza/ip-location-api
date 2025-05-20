@@ -131,6 +131,44 @@ func fetchIPJson(ipString string) ([]byte, error) {
 	return jsonResult, nil
 }
 
+func fetchIPCC(ipJson io.Reader) ([]byte, error) {
+	var requestData map[string]interface{}
+	responseData := make(map[string]interface{})
+	dec := json.NewDecoder(ipJson)
+	err := dec.Decode(&requestData)
+	if err != nil {
+		responseData["error"] = err.Error()
+		responseBody, jsonErr := json.Marshal(responseData)
+		if (jsonErr != nil) { panic(jsonErr) }
+		return []byte(responseBody), err
+	}
+	ipValue, ok := requestData["ip"];
+	if !ok {
+		responseData["error"] = "Error parsing IP"
+		responseBody, jsonErr := json.Marshal(responseData)
+		if (jsonErr != nil) { panic(jsonErr) }
+		return []byte(responseBody), err
+	}
+	ipString, ok := ipValue.(string)
+	ipResult, err := fetchIP(ipString)
+	if err != nil {
+		responseData["error"] = err.Error()
+		responseBody, jsonErr := json.Marshal(responseData)
+		if (jsonErr != nil) { panic(jsonErr) }
+		return []byte(responseBody), err
+	}
+
+	if ipResult.FoundCountry {
+		responseData["countryCode"] = ipResult.CountryCode
+	} else {
+		responseData["error"] = "Country code not found"
+	}
+
+	responseBody, jsonErr := json.Marshal(responseData)
+	if (jsonErr != nil) { panic(jsonErr) }
+	return []byte(responseBody), nil
+}
+
 func fileExists(filePath string) bool {
 	_, err := os.Stat(filePath)
 	if err != nil {

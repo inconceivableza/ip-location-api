@@ -24,6 +24,7 @@ func main() {
 
 	http.HandleFunc("GET /", getHome)
 	http.HandleFunc("GET /ip/{ip}", getIp)
+	http.HandleFunc("POST /ipccdata.IpCcService/Lookup", getIpCC)
 	http.HandleFunc("GET /random/{ipVersion}", getRandomIp)
 	http.HandleFunc("GET /benchmark/{ipVersion}/{times}", getBenchmark)
 
