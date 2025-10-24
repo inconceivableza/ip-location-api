@@ -1,5 +1,5 @@
 # Use a multi-stage build for a smaller final image
-FROM golang:1.23-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 # Install build dependencies
 RUN apk add --no-cache make git
@@ -77,8 +77,8 @@ COPY --from=builder /app/builds/ip-location-api-linux-x64.bin /app/ip-location-a
 FROM runtime AS arm64
 COPY --from=builder /app/builds/ip-location-api-linux-arm64.bin /app/ip-location-api
 
-# Use the appropriate image based on architecture
-FROM ${TARGETARCH}
+# Use the appropriate image based on architecture - this is the default, override if needed
+# FROM ${TARGETARCH}
 
 # Declare a volume for persisting downloaded data
 VOLUME /app/downloads
