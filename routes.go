@@ -11,6 +11,41 @@ func getHome(response http.ResponseWriter, request *http.Request) {
 	response.Write([]byte(`{ "message": "Welcome! To use this system please query /ip/$ip" }`))
 }
 
+// getIPDetails and extractIPAddress use code from https://github.com/johnpili/ip-reveal/ under MIT license
+
+func getIPDetails(request *http.Request) string {
+	ip := ""
+	// trusts x-Real-IP; use upstream proxy to ensure this is warranted
+	ip = request.Header.Get("X-Real-IP")
+
+	if len(ip) == 0 { // Fallback
+		ip = extractIPAddress(request.RemoteAddr)
+	}
+	return ip
+}
+
+func extractIPAddress(ip string) string {
+	if len(ip) > 0 {
+		for i := len(ip); i >= 0; i-- {
+			offset := len(ip)
+			if (i + 1) <= len(ip) {
+				offset = i + 1
+			}
+			if ip[i:offset] == ":" {
+				return ip[:i]
+			}
+		}
+	}
+	return ip
+}
+
+func findIp(response http.ResponseWriter, request *http.Request) {
+	IP := getIPDetails(request)
+	response.Header().Set("Content-Type", "application/json")
+	response.Write([]byte(`{ "IP: "` + IP + `" }`))
+	return
+}
+
 func getIp(response http.ResponseWriter, request *http.Request) {
 	if !validApiKey(request, false) {
 		response.Header().Set("Content-Type", "application/json")

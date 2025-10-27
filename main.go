@@ -23,6 +23,7 @@ func main() {
 	initialise()
 
 	http.HandleFunc("GET /", getHome)
+	http.HandleFunc("GET /findip", findIp)
 	http.HandleFunc("GET /ip/{ip}", getIp)
 	http.HandleFunc("POST /ipccdata.IpCcService/Lookup", getIpCC)
 	http.HandleFunc("GET /random/{ipVersion}", getRandomIp)
