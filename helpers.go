@@ -166,6 +166,30 @@ func fetchIPCC(ipJson io.Reader) ([]byte, error) {
 	return []byte(responseBody), err
 }
 
+func buildIPCCConfig(ipString string) ([]byte, error, bool) {
+	hadErr := false
+	responseData := make(map[string]interface{})
+	ipResult, err := fetchIP(ipString)
+	if err == nil {
+		if ipResult.FoundCountry {
+			responseData["countryCode"] = ipResult.CountryCode
+		} else {
+			responseData["error"] = "Country code not found"
+			hadErr = true
+		}
+		// not sure exactly if this contains the right thing
+		responseData["regionCode"] = ipResult.State1
+		// TODO: add ageRestrictedGeos, ageBlockedGeos config support
+	} else {
+		responseData["error"] = "Error parsing IP"
+		fmt.Println("Error parsing IP " + ipString + ": " + err.Error())
+		hadErr = true
+	}
+	responseBody, jsonErr := json.Marshal(responseData)
+	if (jsonErr != nil) { panic(jsonErr) }
+	return []byte(responseBody), err, hadErr
+}
+
 func fileExists(filePath string) bool {
 	_, err := os.Stat(filePath)
 	if err != nil {

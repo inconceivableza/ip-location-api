@@ -201,3 +201,4 @@ func loadCountries(dataToLoad DataToLoad) {
 func loadDbStructure() {
 	dbFile()
 }
+

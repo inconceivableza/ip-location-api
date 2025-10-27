@@ -46,6 +46,21 @@ func findIp(response http.ResponseWriter, request *http.Request) {
 	return
 }
 
+func buildIpConfig(response http.ResponseWriter, request *http.Request) {
+	IP := getIPDetails(request)
+	jsonBytes, err, hadErr := buildIPCCConfig(IP)
+	if err != nil {
+		response.WriteHeader(http.StatusInternalServerError)
+		response.Header().Set("Content-Type", "application/json")
+		response.Write(jsonBytes)
+		return
+	} else if hadErr {
+		response.WriteHeader(http.StatusInternalServerError)
+	}
+	response.Header().Set("Content-Type", "application/json")
+	response.Write(jsonBytes)
+}
+
 func getIp(response http.ResponseWriter, request *http.Request) {
 	if !validApiKey(request, false) {
 		response.Header().Set("Content-Type", "application/json")
