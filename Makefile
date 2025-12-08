@@ -15,6 +15,9 @@ all: test build
 # Build commands
 build: update $(BUILD_COMMAND)
 
+build_native:
+	go build -o builds/$(BINARY_NAME).bin .
+
 build_linux_amd64:
 	GOARCH=amd64 GOOS=linux go build -o builds/$(BINARY_NAME)-linux-x64.bin .
 
