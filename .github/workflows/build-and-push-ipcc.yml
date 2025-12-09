@@ -69,7 +69,7 @@ jobs:
     outputs:
       digest-amd64: ${{ matrix.platform.name == 'amd64' && steps.build-and-push.outputs.digest || '' }}
       digest-arm64: ${{ matrix.platform.name == 'arm64' && steps.build-and-push.outputs.digest || '' }}
-      success-outputs: ${{ steps.set-output.outputs || '' }}
+      success-outputs: ${{ toJSON(steps.set-output.outputs) }}
 
   create-manifest:
     if: github.repository == 'inconceivableza/ip-location-api'
