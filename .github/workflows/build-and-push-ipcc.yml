@@ -36,11 +36,11 @@ jobs:
         id: build-and-push
         run: |
           DOCKER_FLAGS="--platform=linux/amd64,linux/arm64 --cache-from=type=gha --cache-to=type=gha,mode=max "
-          for label in ${{ steps.meta.outputs.labels }}; do
+          while IFS= read -r label; do
             DOCKER_FLAGS+="--label=${label} "
-          done
-          for tag in ${{ steps.meta.outputs.tags }}; do
+          done <<< "${{ steps.meta.outputs.labels }}"
+          while IFS= read -r tag; do
             DOCKER_FLAGS+="--tag=${tag} "
-          done
+          done <<< "${{ steps.meta.outputs.tags }}"
           docker buildx build $DOCKER_FLAGS .
 
