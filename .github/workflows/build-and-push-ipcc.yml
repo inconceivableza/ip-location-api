@@ -34,17 +34,14 @@ jobs:
 
       - name: Build and push Docker image
         id: build-and-push
-        run: |
-          # consider how to do --cache-from=type=gha and --cache-to=type=gha,mode=max
-          DOCKER_FLAGS=(--platform=linux/amd64,linux/arm64)
-          while IFS= read -r label; do
-            plain_label="$(echo "${label}" | sed 's/^ *\(.*\) *$/\1/' | grep -v "'")"
-            [ "$plain_label" != "" ] && DOCKER_FLAGS+=(--label "${plain_label}")
-          done <<< "${{ steps.meta.outputs.labels }}"
-          while IFS= read -r tag; do
-            plain_tag="$(echo "${tag}" | sed 's/^ *\(.*\) *$/\1/' | grep -v "'")"
-            [ "$plain_tag" != "" ] && DOCKER_FLAGS+=(--tag "${plain_tag}")
-          done <<< "${{ steps.meta.outputs.tags }}"
-          echo "docker buildx build ${DOCKER_FLAGS[@]} ."
-          docker buildx build "${DOCKER_FLAGS[@]}" .
-
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          file: ./Dockerfile
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+     
