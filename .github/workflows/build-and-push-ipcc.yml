@@ -34,7 +34,7 @@ jobs:
 
       - name: Build and push Docker image
         id: build-and-push
-        run:
+        run: |
           DOCKER_FLAGS="--platform=linux/amd64,linux/arm64 --cache-from=type=gha --cache-to=type=gha,mode=max "
           for label in ${{ steps.meta.outputs.labels }}; do
             DOCKER_FLAGS+="--label=${label} "
