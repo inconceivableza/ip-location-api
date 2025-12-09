@@ -53,7 +53,7 @@ jobs:
           context: .
           platforms: ${{ matrix.platform.name }}
           push: true
-          file: ./Dockerfile
+          file: ./Dockerfile.single-platform
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: |
