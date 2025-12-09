@@ -35,7 +35,8 @@ jobs:
       - name: Build and push Docker image
         id: build-and-push
         run: |
-          DOCKER_FLAGS=(--platform=linux/amd64,linux/arm64,--cache-from=type=gha,--cache-to=type=gha,mode=max)
+          # consider how to do --cache-from=type=gha and --cache-to=type=gha,mode=max
+          DOCKER_FLAGS=(--platform=linux/amd64,linux/arm64)
           while IFS= read -r label; do
             plain_label="$(echo "${label}" | sed 's/^ *\(.*\) *$/\1/' | grep -v "'")"
             [ "$plain_label" != "" ] && DOCKER_FLAGS+=(--label "${plain_label}")
