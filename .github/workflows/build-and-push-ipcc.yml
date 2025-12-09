@@ -65,14 +65,12 @@ jobs:
         id: set-output
         if: always()
         run: |
-          if [ "${{ matrix.platform.name }}" == "linux/amd64" ]; then
-            echo "amd64-success=${{ steps.build-and-push.outcome == 'success' }}" >> $GITHUB_OUTPUT
-          elif [ "${{ matrix.platform.name }}" == "linux/arm64" ]; then
-            echo "arm64-success=${{ steps.build-and-push.outcome == 'success' }}" >> $GITHUB_OUTPUT
-          fi
+          echo "success=${{ steps.build-and-push.outcome == 'success' }}" >> $GITHUB_OUTPUT
     outputs:
       digest-amd64: ${{ matrix.platform == 'linux/amd64' && steps.build-and-push.outputs.digest || '' }}
       digest-arm64: ${{ matrix.platform == 'linux/arm64' && steps.build-and-push.outputs.digest || '' }}
+      ${{ format('success-{0}', matrix.platform.name) }}:
+        value: ${{ steps.set-output.outputs.success || '' }}
 
   create-manifest:
     if: github.repository == 'inconceivableza/ip-location-api'
@@ -105,20 +103,24 @@ jobs:
           # Get the tag without platform suffix
           TAG=$(echo "${{ steps.meta.outputs.tags }}" | head -n 1)
           COMMIT_SHA=$(git rev-parse HEAD)
-          
+
           # Build array of successful platform images
           IMAGES=()
-          
+
+          # show output
+          echo "Dumping build stage outputs"
+          echo "${{ toJSON(needs.build.outputs) }}"
+
           # Always include amd64 (it's not experimental)
-          if [ "${{ needs.build.outputs.amd64-success }}" == "true" ]; then
+          if [ "${{ needs.build.outputs.success-amd64 }}" == "true" ]; then
             IMAGES+=("${{ env.DOCKERHUB_REPO }}/${{ env.IMAGE_NAME }}:${COMMIT_SHA}-linux-amd64")
           fi
-          
+
           # Conditionally include arm64 if it succeeded
-          if [ "${{ needs.build.outputs.arm64-success }}" == "true" ]; then
+          if [ "${{ needs.build.outputs.success-arm64 }}" == "true" ]; then
             IMAGES+=("${{ env.DOCKERHUB_REPO }}/${{ env.IMAGE_NAME }}:${COMMIT_SHA}-linux-arm64")
           fi
-          
+
           # Create manifest with available images
           if [ ${#IMAGES[@]} -gt 0 ]; then
             docker buildx imagetools create -t ${TAG} "${IMAGES[@]}"
