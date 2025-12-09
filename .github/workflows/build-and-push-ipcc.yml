@@ -63,17 +63,31 @@ jobs:
 
       - name: Set success output
         id: set-output
+        uses: cloudposse/github-action-matrix-outputs-write@v1
         if: always()
-        run: |
-          echo "success-${{matrix.platform.name }}=${{ steps.build-and-push.outcome == 'success' }}" >> $GITHUB_OUTPUT
-    outputs:
-      digest-amd64: ${{ matrix.platform.name == 'amd64' && steps.build-and-push.outputs.digest || '' }}
-      digest-arm64: ${{ matrix.platform.name == 'arm64' && steps.build-and-push.outputs.digest || '' }}
-      success-outputs: ${{ toJSON(steps.set-output.outputs) }}
+        with:
+          matrix-step-name: ${{ github.job }}
+          matrix-key: ${{ matrix.platform }}
+          outputs: |-
+            success: ${{ steps.build-and-push.outcome == 'success' }}
+            digest: ${{ steps.build-and-push.digest || '' }}
+
+  matrix-outputs:
+    if: github.repository == 'inconceivableza/ip-location-api'
+    runs-on: ubuntu-latest
+    needs: [build]
+      steps:
+        - uses: cloudposse/github-action-matrix-outputs-read@v1
+          id: read
+          with:
+            matrix-step-name: build
+
+      outputs:
+        result: "${{ steps.read.outputs.result }}"
 
   create-manifest:
     if: github.repository == 'inconceivableza/ip-location-api'
-    needs: build
+    needs: [matrix-outputs]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -108,10 +122,13 @@ jobs:
 
           # show output
           echo "Dumping build stage outputs"
-          echo "${{ toJSON(needs.build.outputs) }}"
+          echo "result: ${{ needs.matrix-outputs.outputs.result }}"
+          echo "success: ${{ fromJson(needs.matrix-outputs.outputs.result).success }}"
+          echo "amd64: ${{ fromJson(needs.matrix-outputs.outputs.result).success.amd64 }}"
+          echo "arm64: ${{ fromJson(needs.matrix-outputs.outputs.result).success.arm64 }}"
 
           # Always include amd64 (it's not experimental)
-          if [ "${{ needs.build.outputs.success-amd64 }}" == "true" ]; then
+          if [ "${{ fromJson(needs.matrix-outputs.outputs.result).success.amd64 }}" == "true" ]; then
             IMAGES+=("${{ env.DOCKERHUB_REPO }}/${{ env.IMAGE_NAME }}:${COMMIT_SHA}-linux-amd64")
           fi
 
