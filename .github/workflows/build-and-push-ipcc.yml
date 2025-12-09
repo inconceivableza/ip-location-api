@@ -65,12 +65,12 @@ jobs:
         id: set-output
         if: always()
         run: |
-          echo "success=${{ steps.build-and-push.outcome == 'success' }}" >> $GITHUB_OUTPUT
+          echo "success-${{matrix.platform.name }}=${{ steps.build-and-push.outcome == 'success' }}" >> $GITHUB_OUTPUT
     outputs:
-      digest-amd64: ${{ matrix.platform == 'linux/amd64' && steps.build-and-push.outputs.digest || '' }}
-      digest-arm64: ${{ matrix.platform == 'linux/arm64' && steps.build-and-push.outputs.digest || '' }}
-      ${{ format('success-{0}', matrix.platform.name) }}:
-        value: ${{ steps.set-output.outputs.success || '' }}
+      digest-amd64: ${{ matrix.platform.name == 'amd64' && steps.build-and-push.outputs.digest || '' }}
+      digest-arm64: ${{ matrix.platform.name == 'arm64' && steps.build-and-push.outputs.digest || '' }}
+      success-amd64: ${{ steps.build-and-push.outputs.success-${{ matrix.platform.name }} || '' }}
+      success-arm64: ${{ steps.build-and-push.outputs.success-${{ matrix.platform.name }} || '' }}
 
   create-manifest:
     if: github.repository == 'inconceivableza/ip-location-api'
