@@ -34,7 +34,7 @@ jobs:
       - name: Prepare platform tag
         id: platform
         run: |
-          platform=${{ matrix.platform }}
+          platform=${{ matrix.platform.name }}
           echo "tag=${platform//\//-}" >> $GITHUB_OUTPUT
 
       - name: Extract Docker metadata
@@ -51,7 +51,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          platforms: ${{ matrix.platform }}
+          platforms: ${{ matrix.platform.name }}
           push: true
           file: ./Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
