@@ -37,10 +37,13 @@ jobs:
         run: |
           DOCKER_FLAGS="--platform=linux/amd64,linux/arm64 --cache-from=type=gha --cache-to=type=gha,mode=max "
           while IFS= read -r label; do
-            DOCKER_FLAGS+="--label=${label} "
+            plain_label="$(echo "${label}" | sed 's/^ *\(.*\) *$/\1/' | grep -v "'")"
+            [ "$plain_label" != "" ] && DOCKER_FLAGS+="--label='${plain_label}' "
           done <<< "${{ steps.meta.outputs.labels }}"
           while IFS= read -r tag; do
-            DOCKER_FLAGS+="--tag=${tag} "
+            plain_tag="$(echo "${tag}" | sed 's/^ *\(.*\) *$/\1/' | grep -v "'")"
+            [ "$plain_tag" != "" ] && DOCKER_FLAGS+="--tag='${plain_tag}' "
           done <<< "${{ steps.meta.outputs.tags }}"
+          echo docker buildx build $DOCKER_FLAGS .
           docker buildx build $DOCKER_FLAGS .
 
