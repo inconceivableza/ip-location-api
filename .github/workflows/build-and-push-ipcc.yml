@@ -67,7 +67,7 @@ jobs:
         if: always()
         with:
           matrix-step-name: ${{ github.job }}
-          matrix-key: ${{ matrix.platform }}
+          matrix-key: ${{ replace(matrix.platform.name, 'linux/', '') }}
           outputs: |-
             success: ${{ steps.build-and-push.outcome == 'success' }}
             digest: ${{ steps.build-and-push.digest || '' }}
