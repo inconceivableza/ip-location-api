@@ -35,11 +35,12 @@ jobs:
       - name: Build and push Docker image
         id: build-and-push
         run:
-          docker buildx build \
-            --platform=linux/amd64,linux/arm64 \
-            --tag=${{ steps.meta.outputs.tags }} \
-            --label=${{ steps.meta.outputs.labels }} \
-            --cache-from=type=gha \
-            --cache-to=type=gha,mode=max \
-            .
+          DOCKER_FLAGS="--platform=linux/amd64,linux/arm64 --cache-from=type=gha --cache-to=type=gha,mode=max "
+          for label in ${{ steps.meta.outputs.labels }}; do
+            DOCKER_FLAGS+="--label=${label} "
+          done
+          for tag in ${{ steps.meta.outputs.tags }}; do
+            DOCKER_FLAGS+="--tag=${tag} "
+          done
+          docker buildx build $DOCKER_FLAGS .
 
