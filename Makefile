@@ -88,4 +88,4 @@ update:
 
 # Docker commands
 dockerbuild:
-	docker build -t ip-location-api .
+	docker build -t ip-location-service-bsky .
