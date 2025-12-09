@@ -35,15 +35,15 @@ jobs:
       - name: Build and push Docker image
         id: build-and-push
         run: |
-          DOCKER_FLAGS="--platform=linux/amd64,linux/arm64 --cache-from=type=gha --cache-to=type=gha,mode=max "
+          DOCKER_FLAGS=(--platform=linux/amd64,linux/arm64,--cache-from=type=gha,--cache-to=type=gha,mode=max)
           while IFS= read -r label; do
             plain_label="$(echo "${label}" | sed 's/^ *\(.*\) *$/\1/' | grep -v "'")"
-            [ "$plain_label" != "" ] && DOCKER_FLAGS+="--label='${plain_label}' "
+            [ "$plain_label" != "" ] && DOCKER_FLAGS+=(--label "${plain_label}")
           done <<< "${{ steps.meta.outputs.labels }}"
           while IFS= read -r tag; do
             plain_tag="$(echo "${tag}" | sed 's/^ *\(.*\) *$/\1/' | grep -v "'")"
-            [ "$plain_tag" != "" ] && DOCKER_FLAGS+="--tag='${plain_tag}' "
+            [ "$plain_tag" != "" ] && DOCKER_FLAGS+=(--tag "${plain_tag}")
           done <<< "${{ steps.meta.outputs.tags }}"
-          echo docker buildx build $DOCKER_FLAGS .
-          docker buildx build $DOCKER_FLAGS .
+          echo "docker buildx build ${DOCKER_FLAGS[@]} ."
+          docker buildx build "${DOCKER_FLAGS[@]}" .
 
