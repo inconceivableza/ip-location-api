@@ -67,7 +67,7 @@ jobs:
         if: always()
         with:
           matrix-step-name: ${{ github.job }}
-          matrix-key: ${{ replace(matrix.platform.name, 'linux/', '') }}
+          matrix-key: ${{ matrix.platform.name }}
           outputs: |-
             success: ${{ steps.build-and-push.outcome == 'success' }}
             digest: ${{ steps.build-and-push.digest || '' }}
@@ -124,16 +124,16 @@ jobs:
           echo "Dumping build stage outputs"
           echo "result: ${{ needs.matrix-outputs.outputs.result }}"
           echo "success: ${{ fromJson(needs.matrix-outputs.outputs.result).success }}"
-          echo "amd64: ${{ fromJson(needs.matrix-outputs.outputs.result).success.amd64 }}"
-          echo "arm64: ${{ fromJson(needs.matrix-outputs.outputs.result).success.arm64 }}"
+          echo "amd64: ${{ fromJson(needs.matrix-outputs.outputs.result).success['linux/amd64'] }}"
+          echo "arm64: ${{ fromJson(needs.matrix-outputs.outputs.result).success['linux/arm64'] }}"
 
           # Always include amd64 (it's not experimental)
-          if [ "${{ fromJson(needs.matrix-outputs.outputs.result).success.amd64 }}" == "true" ]; then
+          if [ "${{ fromJson(needs.matrix-outputs.outputs.result).success['linux/amd64'] }}" == "true" ]; then
             IMAGES+=("${{ env.DOCKERHUB_REPO }}/${{ env.IMAGE_NAME }}:${COMMIT_SHA}-linux-amd64")
           fi
 
           # Conditionally include arm64 if it succeeded
-          if [ "${{ needs.build.outputs.success-arm64 }}" == "true" ]; then
+          if [ "${{ fromJson(needs.matrix-outputs.outputs.result).success['linux/arm64'] }}" == "true" ]; then
             IMAGES+=("${{ env.DOCKERHUB_REPO }}/${{ env.IMAGE_NAME }}:${COMMIT_SHA}-linux-arm64")
           fi
 
