@@ -6,7 +6,7 @@ env:
   IMAGE_NAME: ip-location-service-bsky
 
 jobs:
-  build-and-push-ipcc:
+  build:
     if: github.repository == 'inconceivableza/ip-location-api'
     runs-on: ${{ matrix.platform == 'linux/arm64' && fromJSON('["self-hosted", "macOS", "ARM64"]') || 'ubuntu-22.04' }}
     strategy:
