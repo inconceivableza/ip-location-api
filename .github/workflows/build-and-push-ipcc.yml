@@ -37,7 +37,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
+          # only build on amd64, even though we're doing a multi-platform build
+          platforms: linux/amd64
           push: true
           file: ./Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
