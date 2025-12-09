@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -17,7 +18,11 @@ func getIPDetails(request *http.Request) string {
 	ip := ""
 	// trusts x-Real-IP; use upstream proxy to ensure this is warranted
 	ip = request.Header.Get("X-Real-IP")
-
+	for name, headers := range request.Header {
+		for _, h := range headers {
+			fmt.Printf("  http header received %s: %s\n", name, h)
+		}
+	}
 	if len(ip) == 0 { // Fallback
 		ip = extractIPAddress(request.RemoteAddr)
 	}
