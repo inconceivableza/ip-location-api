@@ -40,5 +40,6 @@ jobs:
             --tag=${{ steps.meta.outputs.tags }} \
             --label=${{ steps.meta.outputs.labels }} \
             --cache-from=type=gha \
-            --cache-to=type=gha,mode=max
+            --cache-to=type=gha,mode=max \
+            .
 
